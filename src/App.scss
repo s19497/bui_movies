@@ -1,0 +1,13 @@
+@import "~bootstrap/scss/bootstrap";
+
+.App {
+
+}
+
+.Movie .card {
+  width: 150px;
+
+  .card-img {
+    height: 225px;
+  }
+}
