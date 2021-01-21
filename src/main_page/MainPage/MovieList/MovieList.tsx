@@ -1,8 +1,8 @@
 import React from 'react';
-import MoviePreview, {MoviePreviewProps} from "./MoviePreview";
+import MoviePreview from "./MoviePreview";
 
 type MovieListProps = {
-    movies: MoviePreviewProps[]
+    movies: MovieListResultObject[]
 }
 
 const MovieList: React.FC<MovieListProps> = ({movies}) => {
