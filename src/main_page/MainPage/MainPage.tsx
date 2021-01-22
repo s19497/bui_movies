@@ -9,11 +9,15 @@ import {RouteComponentProps} from "react-router";
 
 const MainPage: React.FC<RouteComponentProps> = (props) => {
     const [movieList, setMovieList] = useState<MovieListResultObject[]>([]);
-    const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
-    const query = new URLSearchParams(useLocation().search);
 
-    function fetchPopular(page: number) {
+    const query = new URLSearchParams(useLocation().search);
+    const currentPage = Number(query.get('page')) || 1;
+    const currentText = query.get('name') || '';
+    const currentGenre = query.get('genre') || "Any";
+    const currentSort = query.get('sort') || 'popularity';
+
+    function fetchPopular() {
         theMovieDb.movies.getPopular({page: currentPage}, (result: string) => {
             let resultJson: PopularMoviesResult = JSON.parse(result);
             setMovieList(resultJson.results);
@@ -23,7 +27,7 @@ const MainPage: React.FC<RouteComponentProps> = (props) => {
 
     function fetchByName(name: string) {
         if (!name) {
-            fetchPopular(1);
+            fetchPopular();
         }
         theMovieDb.search.getMovie({page: currentPage, query: name}, (result: string) => {
             let resultJson: PopularMoviesResult = JSON.parse(result);
@@ -33,22 +37,16 @@ const MainPage: React.FC<RouteComponentProps> = (props) => {
     }
 
     function fetchByGenre(genre: number) {
-        theMovieDb.discover.getMovies({page: currentPage, with_genres: [genre]}, (result: string) => {
+        theMovieDb.discover.getMovies({
+            page: currentPage,
+            with_genres: [genre],
+            sort_by: currentSort + '.desc'
+        }, (result: string) => {
             let resultJson: PopularMoviesResult = JSON.parse(result);
             setMovieList(resultJson.results);
             setTotalPages(resultJson.total_pages);
         }, alert);
     }
-
-    useEffect(() => {
-        console.log('effect 1');
-        const queryPage = Number(query.get('page'));
-        if (queryPage > 0 && !isNaN(queryPage)) {
-            setCurrentPage(queryPage);
-        } else {
-            setCurrentPage(1);
-        }
-    }, [query.get('page')])
 
     useEffect(() => {
         console.log('effect 2');
@@ -62,8 +60,8 @@ const MainPage: React.FC<RouteComponentProps> = (props) => {
             fetchByGenre(Number(genre));
             return;
         }
-        fetchPopular(currentPage);
-    }, [currentPage, query.get('name'), query.get('genre')]);
+        fetchPopular();
+    }, [currentSort, currentPage, query.get('name'), query.get('genre')]);
 
     return (
         <div className="MainPage">
@@ -71,8 +69,11 @@ const MainPage: React.FC<RouteComponentProps> = (props) => {
                 <h1 className="my-3">Movies™</h1>
                 <Row>
                     <Col md={4}>
-                        <SearchBar/>
+                        <SearchBar {...{currentText, currentGenre, currentSort}}/>
                     </Col>
+                </Row>
+                <Row>
+                    <PageButtons {...{totalPages, ...props, currentPage}}/>
                 </Row>
                 <Row>
                     <MovieList movies={movieList}/>

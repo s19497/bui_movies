@@ -1,7 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import {Card} from "react-bootstrap";
-import unknownImage from './unknownMovie.png';
+import unknownImage from '../../../common/unknownMovie.png';
 
 const {getImage} = require('../../../util/themoviedb').common;
 

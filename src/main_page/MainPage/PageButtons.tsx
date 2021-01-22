@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import {RouteComponentProps} from "react-router";
 import {Button} from "react-bootstrap";
+import {setQuery} from "../../util/util";
 
 type PageButtonsProps = {
     totalPages: number
@@ -10,15 +11,14 @@ type PageButtonsProps = {
 const PageButtons: React.FC<PageButtonsProps> = (props) => {
     function flipPage(next: boolean) {
         let newPage = props.currentPage + (next ? 1 : -1);
-        if (newPage > 0) {
-            let prevQuery = new URLSearchParams(props.location.search);
-            prevQuery.set('page', newPage.toString());
-            props.history.push('?' + prevQuery.toString());
+        if (newPage > 0 && newPage <= props.totalPages) {
+            setQuery(props, {'page': newPage.toString()});
+            window.scrollTo({top: 0});
         }
     }
 
     return (
-        <div>
+        <div className="PageButtons m-auto">
             <Button onClick={(e) => flipPage(false)}>Prev</Button>
             <Button variant="outline-secondary" className="disabled">
                 {props.currentPage} / {props.totalPages}
