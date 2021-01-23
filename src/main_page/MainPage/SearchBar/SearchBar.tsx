@@ -34,7 +34,11 @@ const SearchBar: React.FC<SearchBarProps> = (props) => {
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        props.history.push(`?name=${searchValue}`);
+        if (!searchValue) {
+            props.history.push("/");
+        } else {
+            props.history.push(`?name=${searchValue}`);
+        }
         setSearchGenre("Any");
         console.log("SUBMITTED");
     }

@@ -38,7 +38,8 @@ const MoviePage: React.FC<MoviePageProps> = ({match}) => {
                             {movie.original_title !== movie.title ? <h6>{movie.original_title}</h6> : null}
                             <p style={{fontWeight: 'bold'}}>{movie.overview}</p>
                             <p>{movie.genres.map(i =>
-                                <a className="mr-4" href={`http://localhost:3000?genre=${i.id}`}>{i.name}</a>
+                                // "window.location.origin" safe?
+                                <a key={i.id} className="mr-4" href={`${window.location.origin}?genre=${i.id}`}>{i.name}</a>
                             )}</p>
                         </div>
                     </Jumbotron>
@@ -49,7 +50,7 @@ const MoviePage: React.FC<MoviePageProps> = ({match}) => {
                     </div>
                     <div>
                         Director: <b>
-                        {movie.credits.crew.filter(i => i.job.toLowerCase() == "director").map(i => i.name).join(', ')}
+                        {movie.credits.crew.filter(i => i.job.toLowerCase() === "director").map(i => i.name).join(', ')}
                     </b>
                     </div>
                     <div>

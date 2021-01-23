@@ -49,7 +49,7 @@ const MainPage: React.FC<RouteComponentProps> = (props) => {
     }
 
     useEffect(() => {
-        console.log('effect 2');
+        console.log('MainPage used effect!');
         const name = query.get('name');
         if (name) {
             fetchByName(name);
@@ -61,7 +61,13 @@ const MainPage: React.FC<RouteComponentProps> = (props) => {
             return;
         }
         fetchPopular();
-    }, [currentSort, currentPage, query.get('name'), query.get('genre')]);
+    }, [currentSort, currentPage, currentText, currentGenre]);
+
+    const pageButtons = (
+        <Row>
+            <PageButtons {...{totalPages, ...props, currentPage}}/>
+        </Row>
+    )
 
     return (
         <div className="MainPage">
@@ -72,15 +78,11 @@ const MainPage: React.FC<RouteComponentProps> = (props) => {
                         <SearchBar {...{currentText, currentGenre, currentSort}}/>
                     </Col>
                 </Row>
-                <Row>
-                    <PageButtons {...{totalPages, ...props, currentPage}}/>
-                </Row>
+                {pageButtons}
                 <Row>
                     <MovieList movies={movieList}/>
                 </Row>
-                <Row>
-                    <PageButtons {...{totalPages, ...props, currentPage}}/>
-                </Row>
+                {pageButtons}
             </Container>
         </div>
     )
