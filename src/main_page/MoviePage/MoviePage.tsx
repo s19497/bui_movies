@@ -1,19 +1,25 @@
 import React, {useEffect, useState} from "react";
-import {Card, Carousel, Container, Jumbotron} from "react-bootstrap";
+import {Card, Carousel, Container, Jumbotron, Row} from "react-bootstrap";
 import {RouteComponentProps} from "react-router";
 import theMovieDb from "../../util/themoviedb";
 import unknownImage from '../../common/unknownMovie.png';
 
 type MoviePageProps = RouteComponentProps<{ id: string }>;
-type GiantMovie = MovieDetailsResult & { credits: MovieCreditsResult, images: MovieImagesResult };
+type GiantMovie = MovieDetailsResult & {
+    credits: MovieCreditsResult, images: MovieImagesResult, videos: MovieVideosResult
+};
 
 const MoviePage: React.FC<MoviePageProps> = ({match}) => {
     const [movie, setMovie] = useState<GiantMovie | null>(null);
 
     function fetchMovie() {
-        theMovieDb.movies.getById({'id': match.params.id, 'append_to_response': 'credits,images'}, (result: string) => {
+        theMovieDb.movies.getById({
+            'id': match.params.id,
+            'append_to_response': 'credits,images,videos'
+        }, (result: string) => {
             let jsonResult: GiantMovie = JSON.parse(result);
             setMovie(jsonResult);
+            console.log(jsonResult);
         }, alert);
     }
 
@@ -30,7 +36,7 @@ const MoviePage: React.FC<MoviePageProps> = ({match}) => {
         });
 
         return (
-            <div className="MoviePage">
+            <div className="MoviePage pb-5">
                 <div style={{backgroundImage: `url(${posterImage})`, backgroundPosition: 'center'}}>
                     <Jumbotron style={{background: "rgba(240, 240, 240, 0.8)"}}>
                         <div>
@@ -39,7 +45,8 @@ const MoviePage: React.FC<MoviePageProps> = ({match}) => {
                             <p style={{fontWeight: 'bold'}}>{movie.overview}</p>
                             <p>{movie.genres.map(i =>
                                 // "window.location.origin" safe?
-                                <a key={i.id} className="mr-4" href={`${window.location.origin}?genre=${i.id}`}>{i.name}</a>
+                                <a key={i.id} className="mr-4"
+                                   href={`${window.location.origin}?genre=${i.id}`}>{i.name}</a>
                             )}</p>
                         </div>
                     </Jumbotron>
@@ -73,45 +80,79 @@ const MoviePage: React.FC<MoviePageProps> = ({match}) => {
                             </Card>
                         )}
                     </div>
-                    <Carousel>
-                        {movie.images.backdrops.map(backdrop =>
-                            <Carousel.Item key={backdrop.file_path}>
-                                <div className="d-flex" style={{background: "black"}}>
-                                    <img className="m-auto" src={
-                                        theMovieDb.common.getImage({
-                                            size: `w780`,
-                                            file: backdrop.file_path
-                                        })
-                                    } alt={backdrop.file_path}/>
-                                </div>
-                            </Carousel.Item>
-                        )}
-                        {movie.images.posters.map(poster =>
-                            <Carousel.Item key={poster.file_path}>
-                                <div className="d-flex" style={{background: "black"}}>
-                                    <img className="m-auto" src={
-                                        theMovieDb.common.getImage({
-                                            size: `w500`,
-                                            file: poster.file_path
-                                        })
-                                    } alt={poster.file_path}/>
-                                </div>
-                            </Carousel.Item>
-                        )}
-                    </Carousel>
-                    <table>
-                        <tbody>
-                        {Object.entries(movie).map(i => {
-                            let [key, value] = i;
-                            return (
-                                <tr key={key.toString()}>
-                                    <td>{key.toString()}</td>
-                                    <td>{JSON.stringify(value)}</td>
-                                </tr>
-                            );
+                    <div>
+                        <Carousel>
+                            {movie.images.backdrops.map(backdrop =>
+                                <Carousel.Item key={backdrop.file_path}>
+                                    <div className="d-flex" style={{background: "black"}}>
+                                        <img className="m-auto" src={
+                                            theMovieDb.common.getImage({
+                                                size: `w780`,
+                                                file: backdrop.file_path
+                                            })
+                                        } alt={backdrop.file_path}/>
+                                    </div>
+                                </Carousel.Item>
+                            )}
+                            {movie.images.posters.map(poster =>
+                                <Carousel.Item key={poster.file_path}>
+                                    <div className="d-flex" style={{background: "black"}}>
+                                        <img className="m-auto" src={
+                                            theMovieDb.common.getImage({
+                                                size: `w500`,
+                                                file: poster.file_path
+                                            })
+                                        } alt={poster.file_path}/>
+                                    </div>
+                                </Carousel.Item>
+                            )}
+                        </Carousel>
+                    </div>
+                    {/*<div>*/}
+                    {/*    <Carousel>*/}
+                    {/*        {movie.videos.results.map(v => {*/}
+                    {/*            if (v.site.toLowerCase() === "youtube") {*/}
+                    {/*                return (*/}
+                    {/*                    <Carousel.Item key={v.id}>*/}
+                    {/*                        <div key={v.id} className="embed-responsive embed-responsive-16by9">*/}
+                    {/*                            <iframe className="embed-responsive-item"*/}
+                    {/*                                    src={`https://www.youtube.com/embed/${v.key}?rel=0`}*/}
+                    {/*                                    allowFullScreen/>*/}
+                    {/*                        </div>*/}
+                    {/*                    </Carousel.Item>*/}
+                    {/*                )*/}
+                    {/*            }*/}
+                    {/*        })}*/}
+                    {/*    </Carousel>*/}
+                    {/*</div>*/}
+                    <div>
+                        {movie.videos.results.map(v => {
+                            if (v.site.toLowerCase() === "youtube") {
+                                return (
+                                    <div key={v.id} className="p-5">
+                                        <div className="embed-responsive embed-responsive-16by9">
+                                            <iframe className="embed-responsive-item"
+                                                    src={`https://www.youtube.com/embed/${v.key}?rel=0`}
+                                                    allowFullScreen/>
+                                        </div>
+                                    </div>
+                                )
+                            }
                         })}
-                        </tbody>
-                    </table>
+                    </div>
+                    {/*<table>*/}
+                    {/*    <tbody>*/}
+                    {/*    {Object.entries(movie).map(i => {*/}
+                    {/*        let [key, value] = i;*/}
+                    {/*        return (*/}
+                    {/*            <tr key={key.toString()}>*/}
+                    {/*                <td>{key.toString()}</td>*/}
+                    {/*                <td>{JSON.stringify(value)}</td>*/}
+                    {/*            </tr>*/}
+                    {/*        );*/}
+                    {/*    })}*/}
+                    {/*    </tbody>*/}
+                    {/*</table>*/}
                 </Container>
             </div>
         )
